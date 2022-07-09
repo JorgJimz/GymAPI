@@ -1,11 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using GymAPI.Models;
+using GymAPI.Models.Responses;
+using GymAPI.Enums;
 
 namespace GymAPI.Controllers
 {
@@ -24,10 +21,10 @@ namespace GymAPI.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
         {
-          if (_context.Usuarios == null)
-          {
-              return NotFound();
-          }
+            if (_context.Usuarios == null)
+            {
+                return NotFound();
+            }
             return await _context.Usuarios.ToListAsync();
         }
 
@@ -35,10 +32,10 @@ namespace GymAPI.Controllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Usuario>> GetUsuario(int id)
         {
-          if (_context.Usuarios == null)
-          {
-              return NotFound();
-          }
+            if (_context.Usuarios == null)
+            {
+                return NotFound();
+            }
             var usuario = await _context.Usuarios.FindAsync(id);
 
             if (usuario == null)
@@ -85,10 +82,10 @@ namespace GymAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<Usuario>> PostUsuario(Usuario usuario)
         {
-          if (_context.Usuarios == null)
-          {
-              return Problem("Entity set 'GymContext.Usuarios'  is null.");
-          }
+            if (_context.Usuarios == null)
+            {
+                return Problem("Entity set 'GymContext.Usuarios'  is null.");
+            }
             _context.Usuarios.Add(usuario);
             await _context.SaveChangesAsync();
 
@@ -125,8 +122,32 @@ namespace GymAPI.Controllers
         [Route("Login")]
         public async Task<IActionResult> Login(string usuario, string contrasena)
         {
-            Usuario logged = await _context.Usuarios.Where(x => x.NumeroDocumento.Equals(usuario) && x.Contrasena.Equals(contrasena)).FirstOrDefaultAsync();
-            return Ok(logged);
+            UsuarioResponse response = new UsuarioResponse();
+            Header header = new Header();
+            Usuario? logged = await _context.Usuarios
+                .Where(x => x.NumeroDocumento.Equals(usuario)
+            && x.Contrasena.Equals(contrasena)).FirstOrDefaultAsync();
+            if (logged is null)
+            {
+                header.Codigo = HeaderEnum.Correcto.ToString();
+                header.Descripcion = "Usuario y/o Contraseña Incorrectos.";                
+            }
+            else
+            {
+                if (logged.Status == 0)
+                {
+                    header.Codigo = HeaderEnum.Correcto.ToString();
+                    header.Descripcion = "No Cuenta con Membresía Activa.";                    
+                }
+                else
+                {
+                    header.Codigo = HeaderEnum.Correcto.ToString();
+                    header.Descripcion = string.Empty;
+                    response.UsuarioEntity = logged;
+                }
+            }
+
+            return Ok(response);
         }
 
         [HttpPost]
@@ -135,6 +156,14 @@ namespace GymAPI.Controllers
         {
             Usuario logged = await _context.Usuarios.Where(x => x.NumeroDocumento.Equals(numero)).FirstOrDefaultAsync();
             return Ok(logged);
+        }
+
+        [HttpGet]
+        [Route("GetIntructors")]
+        public async Task<IActionResult> GetInstructors()
+        {
+            var lInstructors = await _context.Usuarios.Where(x => x.Perfil == 3).ToListAsync();
+            return Ok(lInstructors);
         }
         #endregion
 

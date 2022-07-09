@@ -19,6 +19,7 @@ namespace GymAPI.Models
         public int Perfil { get; set; }
         public string Contrasena { get; set; }
         public int Status { get; set; }
+        public string Menu { get; set;}
 
     }
 }

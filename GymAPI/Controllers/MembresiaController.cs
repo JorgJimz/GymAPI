@@ -90,6 +90,11 @@ namespace GymAPI.Controllers
               return Problem("Entity set 'GymContext.Membresias'  is null.");
           }
             _context.Membresias.Add(membresia);
+
+            //Actualizamos Status Usuario
+            Usuario u = _context.Usuarios.Find(membresia.UsuarioId);
+            u.Status = 1;
+
             await _context.SaveChangesAsync();
 
             return CreatedAtAction("GetMembresia", new { id = membresia.Id }, membresia);

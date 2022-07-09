@@ -10,9 +10,9 @@ namespace GymAPI.Models
         public int Id { get; set; }
         public DateTime FechaHora { get; set; }
         public int InstructorId { get; set; }
-        public Usuario Instructor { get; set; }
+        public Usuario? Instructor { get; set; }
         public int ActividadId { get; set; }
-        public Actividad Actividad { get; set; }
+        public Actividad? Actividad { get; set; }
         public int Status { get; set; }
 
     }
