@@ -119,5 +119,13 @@ namespace GymAPI.Controllers
         {
             return (_context.Asistencias?.Any(e => e.Id == id)).GetValueOrDefault();
         }
+
+        [HttpPost]
+        [Route("ByUser")]
+        public async Task<IActionResult> GetAsistenciaByUser(int id)
+        {
+            List<Asistencia> logged = await _context.Asistencias.Where(x => x.UsuarioId == id).ToListAsync();
+            return Ok(logged);
+        }
     }
 }
